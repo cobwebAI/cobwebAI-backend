@@ -16,9 +16,9 @@ class Note(Base):
     content = Column(Text, nullable=False)
     # Дата создания файла
     created_at = Column(DateTime, default=datetime.now(tz=timezone.utc))
-    updated_at = Column(DateTime, onupdate=datetime.now(tz=timezone.utc))
+    updated_at = Column(DateTime, default=datetime.now(tz=timezone.utc))
     # Уникальный идентификатор проекта
-    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.project_id"), nullable=False)
+    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.project_id", ondelete="CASCADE"), nullable=False)
 
     # Связь с проектом
     project = relationship("Project", back_populates="notes")

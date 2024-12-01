@@ -12,10 +12,10 @@ class Test(Base):
     description = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.now(tz=timezone.utc))
     last_result = Column(Float, nullable=True)
-    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.project_id"), nullable=False)
+    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.project_id", ondelete="CASCADE"), nullable=False)
 
     # Связь с проектом
     project = relationship("Project", back_populates="tests")
 
     # Связь с вопросами
-    question = relationship("Question", back_populates="test")
+    questions = relationship("Question", back_populates="test")

@@ -8,7 +8,7 @@ class Question(Base):
     __tablename__ = "questions"
 
     question_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, index=True)
-    test_id = Column(UUID(as_uuid=True), ForeignKey("tests.test_id"), nullable=False)
+    test_id = Column(UUID(as_uuid=True), ForeignKey("tests.test_id", ondelete="CASCADE"), nullable=False)
     content = Column(JSON, nullable=False)
     order_number = Column(Integer, nullable=False)
 

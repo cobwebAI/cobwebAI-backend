@@ -1,8 +1,8 @@
 """Initial migration
 
-Revision ID: 88682b290e25
+Revision ID: f491dd9618d5
 Revises: 
-Create Date: 2024-11-24 23:07:11.011087+03:00
+Create Date: 2024-12-02 00:29:03.219164+03:00
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '88682b290e25'
+revision: str = 'f491dd9618d5'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -32,10 +32,10 @@ def upgrade() -> None:
     op.create_table('projects',
     sa.Column('project_id', sa.UUID(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['users.user_id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.user_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('project_id')
     )
     op.create_index(op.f('ix_projects_project_id'), 'projects', ['project_id'], unique=False)
@@ -45,17 +45,17 @@ def upgrade() -> None:
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('project_id', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['project_id'], ['projects.project_id'], ),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.project_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('chat_id')
     )
     op.create_index(op.f('ix_chats_chat_id'), 'chats', ['chat_id'], unique=True)
     op.create_table('files',
     sa.Column('file_id', sa.UUID(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('s3_link', sa.String(), nullable=False),
+    sa.Column('content', sa.Text(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('project_id', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['project_id'], ['projects.project_id'], ),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.project_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('file_id')
     )
     op.create_index(op.f('ix_files_file_id'), 'files', ['file_id'], unique=False)
@@ -66,7 +66,7 @@ def upgrade() -> None:
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('project_id', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['project_id'], ['projects.project_id'], ),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.project_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('note_id')
     )
     op.create_index(op.f('ix_notes_note_id'), 'notes', ['note_id'], unique=False)
@@ -77,7 +77,7 @@ def upgrade() -> None:
     sa.Column('audio_file_s3', sa.String(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('project_id', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['project_id'], ['projects.project_id'], ),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.project_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('podcast_id')
     )
     op.create_index(op.f('ix_podcasts_podcast_id'), 'podcasts', ['podcast_id'], unique=True)
@@ -88,7 +88,7 @@ def upgrade() -> None:
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('last_result', sa.Float(), nullable=True),
     sa.Column('project_id', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['project_id'], ['projects.project_id'], ),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.project_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('test_id')
     )
     op.create_index(op.f('ix_tests_test_id'), 'tests', ['test_id'], unique=False)
@@ -97,7 +97,7 @@ def upgrade() -> None:
     sa.Column('content', sa.Text(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('chat_id', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['chat_id'], ['chats.chat_id'], ),
+    sa.ForeignKeyConstraint(['chat_id'], ['chats.chat_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('message_id')
     )
     op.create_index(op.f('ix_messages_message_id'), 'messages', ['message_id'], unique=True)
@@ -106,7 +106,7 @@ def upgrade() -> None:
     sa.Column('test_id', sa.UUID(), nullable=False),
     sa.Column('content', postgresql.JSON(astext_type=sa.Text()), nullable=False),
     sa.Column('order_number', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['test_id'], ['tests.test_id'], ),
+    sa.ForeignKeyConstraint(['test_id'], ['tests.test_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('question_id')
     )
     op.create_index(op.f('ix_questions_question_id'), 'questions', ['question_id'], unique=True)
