@@ -1,7 +1,6 @@
+from typing import Union
 import logging
 import sys
-from typing import Union
-
 from loguru import logger
 
 from cobwebai.settings import settings

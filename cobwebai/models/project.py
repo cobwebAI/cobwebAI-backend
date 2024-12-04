@@ -17,7 +17,7 @@ class Project(Base):
     # Дата последнего обновления проекта
     updated_at = Column(DateTime, default=datetime.now(tz=timezone.utc), nullable=False)
     # Уникальный идентификатор пользователя
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     # Связи с зависимыми сущностями
     files = relationship("File", back_populates="project")

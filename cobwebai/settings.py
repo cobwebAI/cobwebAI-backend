@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     db_port: int = 5432
     db_user: str = "cobwebai"
     db_pass: str = "cobwebai"
-    db_base: str = "admin"
+    db_base: str = "cobwebai"
     db_echo: bool = False
 
     @property
