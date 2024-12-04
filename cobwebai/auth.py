@@ -99,17 +99,13 @@ def get_jwt_strategy() -> JWTStrategy:
     return JWTStrategy(secret=settings.users_secret, lifetime_seconds=None)
 
 
-bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 auth_jwt = AuthenticationBackend(
     name="jwt",
-    transport=bearer_transport,
+    transport=BearerTransport(tokenUrl="jwt/login"),
     get_strategy=get_jwt_strategy,
 )
 
-backends = [
-    auth_jwt,
-]
-
-api_users = FastAPIUsers[User, uuid.UUID](get_user_manager, backends)
+api_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_jwt])
 
 current_active_user = api_users.current_user(active=True)
+current_active_verified_user = api_users.current_user(active=True, verified=True)

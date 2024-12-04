@@ -13,6 +13,10 @@ pydantic-settings = "^2.6.1"
 yarl = "^1.18.3"
 loguru = "^0.7.2"
 asyncpg = "^0.30.0"
+cobwebai-lib = { git = "https://github.com/cobwebAI/cobwebAI-llmlib.git" }
+aiofiles = "^24.1.0"
+openai = "^1.56.2"
+python-multipart = "^0.0.19"
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
@@ -22,4 +26,3 @@ filterwarnings = "ignore"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-

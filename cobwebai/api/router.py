@@ -1,6 +1,7 @@
 from fastapi.routing import APIRouter
 
 from .auth import auth_router
+from .llm import llm_router
 
 api_router = APIRouter()
 
@@ -15,3 +16,4 @@ def health_check() -> None:
 
 
 api_router.include_router(auth_router)
+api_router.include_router(llm_router)

@@ -37,9 +37,10 @@ class Settings(BaseSettings):
 
     # Current environment
     environment: str = "dev"
-
     log_level: LogLevel = LogLevel.INFO
     users_secret: str = os.getenv("USERS_SECRET", "")
+    openapi_key: str = os.getenv("OPENAI_API_KEY", "")
+    
     # Variables for the database
     db_host: str = "localhost"
     db_port: int = 5432
