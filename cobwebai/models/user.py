@@ -10,7 +10,7 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     __tablename__ = "users"
 
     # Дата регистрации пользователя
-    created_at = Column(DateTime(timezone=False), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), default=func.now())
 
     # Связь с проектами
     projects = relationship("Project", back_populates="user")

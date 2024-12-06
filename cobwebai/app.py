@@ -75,9 +75,9 @@ def get_app() -> FastAPI:
         title="cobweb_ai",
         version=metadata.version("cobwebai"),
         lifespan=lifespan_setup,
-        docs_url="/api/docs",
-        redoc_url="/api/redoc",
-        openapi_url="/api/openapi.json",
+        docs_url="/api/v1/docs",
+        redoc_url="/api/v1/redoc",
+        openapi_url="/api/v1/openapi.json",
         default_response_class=UJSONResponse,
     )
 

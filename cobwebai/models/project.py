@@ -3,6 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from cobwebai.models.base import Base
 from datetime import datetime, timezone
+from sqlalchemy.sql import func
 import uuid
 
 class Project(Base):
@@ -13,9 +14,9 @@ class Project(Base):
     # Название проекта
     name = Column(String, nullable=False)
     # Дата создания проекта
-    created_at = Column(DateTime, default=datetime.now(tz=timezone.utc), nullable=False)
+    created_at = Column(DateTime(timezone=False), default=func.now(), nullable=False)
     # Дата последнего обновления проекта
-    updated_at = Column(DateTime, default=datetime.now(tz=timezone.utc), nullable=False)
+    updated_at = Column(DateTime(timezone=False), default=func.now(), nullable=False)
     # Уникальный идентификатор пользователя
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 

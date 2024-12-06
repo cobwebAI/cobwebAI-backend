@@ -1,14 +1,88 @@
-from fastapi import APIRouter, Depends
+from uuid import UUID
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from pydantic import BaseModel
+from datetime import datetime
 
 from cobwebai.auth import current_active_user
 from cobwebai.dependecies.database import get_db_session
 from cobwebai.models import User, Project
-from cobwebai.repositories.project_repository import ProjectRepository
+from .utils import DB_ERR_MSG
 
-# projects_router = APIRouter(prefix="/api/v1", tags=["projects"])
 
-# @projects_router.get("/projects")
-# async def list_user_projects(user: User = Depends(current_active_user), db_session: AsyncSession = Depends(get_db_session)):
-#     projects = ProjectRepository(db_session).get_projects_by_user(user.id)
+class ProjectName(BaseModel):
+    name: str
+
+
+class ProjectIdName(BaseModel):
+    id: UUID
+    name: str
+
+
+class ProjectList(BaseModel):
+    projects: list[ProjectIdName]
     
+
+class FileInfo(BaseModel):
+    id: UUID
+    name: str
+    createdAt: datetime
+    
+# class TestInfo(BaseModel):
+    
+    
+
+# class ProjectInfo(BaseModel):
+#     id: UUID
+#     name: str
+#     files: list[FileInfo]
+#     tests: list[TestInfo]
+
+
+projects_router = APIRouter(prefix="/api/v1", tags=["projects"])
+
+
+@projects_router.get(
+    "/projects",
+    response_model=ProjectList,
+    responses={"500": {"description": DB_ERR_MSG}},
+)
+async def list_user_projects(
+    user: User = Depends(current_active_user),
+    db_session: AsyncSession = Depends(get_db_session),
+):
+    try:
+        query_result = await db_session.execute(
+            select(Project).where(Project.user_id == user.id)
+        )
+
+        user_projects = map(
+            lambda p: {"id": p.project_id, "name": p.name},
+            query_result.scalars().all(),
+        )
+
+        return {"projects": list(user_projects)}
+
+    except:
+        raise HTTPException(500, DB_ERR_MSG)
+
+
+@projects_router.put(
+    "/projects",
+    response_model=ProjectIdName,
+    responses={"500": {"description": DB_ERR_MSG}},
+)
+async def add_project(
+    input: ProjectName,
+    user: User = Depends(current_active_user),
+    db_session: AsyncSession = Depends(get_db_session),
+):
+    try:
+        project = Project(name=input.name, user_id=user.id)
+        db_session.add(project)
+        await db_session.flush()
+    except:
+        raise HTTPException(500, DB_ERR_MSG)
+
+    return {"id": project.project_id, "name": project.name}
