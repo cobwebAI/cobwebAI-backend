@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 from datetime import datetime
+from loguru import logger
 
 from cobwebai.auth import current_active_user
 from cobwebai.dependecies.database import get_db_session
@@ -15,23 +16,23 @@ class ProjectName(BaseModel):
     name: str
 
 
-class ProjectIdName(BaseModel):
+class ProjectIdNamePair(BaseModel):
     id: UUID
     name: str
 
 
 class ProjectList(BaseModel):
-    projects: list[ProjectIdName]
-    
+    projects: list[ProjectIdNamePair]
+
 
 class FileInfo(BaseModel):
     id: UUID
     name: str
     createdAt: datetime
-    
+
+
 # class TestInfo(BaseModel):
-    
-    
+
 
 # class ProjectInfo(BaseModel):
 #     id: UUID
@@ -58,19 +59,20 @@ async def list_user_projects(
         )
 
         user_projects = map(
-            lambda p: {"id": p.project_id, "name": p.name},
+            lambda p: ProjectIdNamePair(id=p.project_id, name=p.name),
             query_result.scalars().all(),
         )
 
-        return {"projects": list(user_projects)}
+        return ProjectList(projects=list(user_projects))
 
-    except:
+    except Exception as e:
+        logger.error(e)
         raise HTTPException(500, DB_ERR_MSG)
 
 
 @projects_router.put(
     "/projects",
-    response_model=ProjectIdName,
+    response_model=ProjectIdNamePair,
     responses={"500": {"description": DB_ERR_MSG}},
 )
 async def add_project(
@@ -82,7 +84,9 @@ async def add_project(
         project = Project(name=input.name, user_id=user.id)
         db_session.add(project)
         await db_session.flush()
-    except:
-        raise HTTPException(500, DB_ERR_MSG)
 
-    return {"id": project.project_id, "name": project.name}
+        return ProjectIdNamePair(id=project.project_id, name=project.name)
+
+    except Exception as e:
+        logger.error(e)
+        raise HTTPException(500, DB_ERR_MSG)
