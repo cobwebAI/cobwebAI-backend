@@ -5,30 +5,30 @@ auth_router = APIRouter()
 
 auth_router.include_router(
     api_users.get_register_router(UserRead, UserCreate),
-    prefix="/api",
+    prefix="/api/v1/auth",
     tags=["auth"],
 )
 
 auth_router.include_router(
     api_users.get_reset_password_router(),
-    prefix="/api",
+    prefix="/api/v1/auth",
     tags=["auth"],
 )
 
 auth_router.include_router(
     api_users.get_verify_router(UserRead),
-    prefix="/api",
+    prefix="/api/v1/auth",
     tags=["auth"],
 )
 
 auth_router.include_router(
     api_users.get_users_router(UserRead, UserUpdate),
-    prefix="/api/users",
+    prefix="/api/v1/users",
     tags=["users"],
 )
 
 auth_router.include_router(
     api_users.get_auth_router(auth_jwt),
-    prefix="/api/jwt",
+    prefix="/api/v1/auth",
     tags=["auth"],
 )

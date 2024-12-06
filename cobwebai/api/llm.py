@@ -27,7 +27,7 @@ openai_client = AsyncOpenAI(api_key=settings.openapi_key)
 transcription_provider = Transcription(oai_client=openai_client, log=logger)
 postprocessing_provider = TextPostProcessing(oai_client=openai_client, log=logger)
 
-llm_router = APIRouter(prefix="/api/llm")
+llm_router = APIRouter(prefix="/api/v1/llm", tags=["llm"])
 
 
 @llm_router.post("/transcribe")
