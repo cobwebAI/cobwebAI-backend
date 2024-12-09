@@ -11,11 +11,11 @@ fastapi = "^0.115.6"
 uvicorn = "^0.32.1"
 pydantic-settings = "^2.6.1"
 yarl = "^1.18.3"
-loguru = "^0.7.2"
+loguru = "^0.7.3"
 asyncpg = "^0.30.0"
-cobwebai-lib = { git = "https://github.com/cobwebAI/cobwebAI-llmlib.git" }
+cobwebai-lib = { path = "./cobwebAI-llmlib" }
 aiofiles = "^24.1.0"
-openai = "^1.56.2"
+openai = "^1.57.0"
 python-multipart = "^0.0.19"
 
 [tool.pytest.ini_options]
