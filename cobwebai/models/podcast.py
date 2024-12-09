@@ -1,8 +1,8 @@
 import uuid
-from datetime import datetime, timezone
 from sqlalchemy import Column, String, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from cobwebai.models.base import Base
 
 class Podcast(Base):
@@ -12,7 +12,7 @@ class Podcast(Base):
     name = Column(String, nullable=False)
     description = Column(String, nullable=True)
     audio_file_s3 = Column(String, nullable=False)  # Ссылка на аудиофайл в S3
-    created_at = Column(DateTime, default=datetime.now(tz=timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=func.now())
     project_id = Column(UUID(as_uuid=True), ForeignKey("projects.project_id", ondelete="CASCADE"), nullable=False)
 
     # Связь с проектом

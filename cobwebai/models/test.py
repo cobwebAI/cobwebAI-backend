@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UUID, Text, Float
+from sqlalchemy import Column, String, DateTime, ForeignKey, UUID, Text, Float
 from sqlalchemy.orm import relationship
 from cobwebai.models.base import Base
-from datetime import datetime, timezone
+from sqlalchemy.sql import func
 import uuid
 
 class Test(Base):
@@ -10,7 +10,7 @@ class Test(Base):
     test_id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
     name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.now(tz=timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=func.now())
     last_result = Column(Float, nullable=True)
     project_id = Column(UUID(as_uuid=True), ForeignKey("projects.project_id", ondelete="CASCADE"), nullable=False)
 

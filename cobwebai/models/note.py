@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, DateTime, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from cobwebai.models.base import Base
-from datetime import datetime, timezone
+from sqlalchemy.sql import func
 import uuid
 
 class Note(Base):
@@ -15,8 +15,8 @@ class Note(Base):
     # Текст заметки
     content = Column(Text, nullable=False)
     # Дата создания файла
-    created_at = Column(DateTime, default=datetime.now(tz=timezone.utc))
-    updated_at = Column(DateTime, default=datetime.now(tz=timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=func.now())
+    updated_at = Column(DateTime(timezone=True), default=func.now())
     # Уникальный идентификатор проекта
     project_id = Column(UUID(as_uuid=True), ForeignKey("projects.project_id", ondelete="CASCADE"), nullable=False)
 
