@@ -1,0 +1,3 @@
+[submodule "cobwebAI-llmlib"]
+	path = cobwebAI-llmlib
+	url = https://github.com/cobwebAI/cobwebAI-llmlib.git
