@@ -8,12 +8,13 @@ from cobwebai.models import Operation
 def operation_to_dict(operation: Operation) -> dict:
     return {
         "id": str(operation.operation_id),
+        "projectId": str(operation.project_id),
         "name": operation.name,
         "type": operation.type.value,
         "status": operation.status.value,
-        "result_id": str(operation.result_id),
-        "created_at": operation.created_at.isoformat(),
-        "updated_at": operation.updated_at.isoformat(),
+        "resultId": str(operation.result_id),
+        "createdAt": operation.created_at.isoformat(),
+        "updatedAt": operation.updated_at.isoformat(),
     }
 
 

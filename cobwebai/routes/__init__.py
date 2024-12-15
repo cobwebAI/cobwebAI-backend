@@ -6,6 +6,7 @@ from .files import router as files_router
 from .notes import router as notes_router
 from .tests import router as tests_router
 from .chat import router as chat_router
+from .operations import router as operations_router
 
 api_router = APIRouter()
 
@@ -25,3 +26,4 @@ api_router.include_router(files_router)
 api_router.include_router(notes_router)
 api_router.include_router(tests_router)
 api_router.include_router(chat_router)
+api_router.include_router(operations_router)
