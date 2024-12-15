@@ -9,16 +9,16 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.12"
 fastapi = "^0.115.6"
-uvicorn = "^0.32.1"
-pydantic-settings = "^2.6.1"
+uvicorn = "^0.34.0"
+pydantic-settings = "^2.7.0"
 yarl = "^1.18.3"
 loguru = "^0.7.3"
 asyncpg = "^0.30.0"
-# cobwebai-lib = { path = "./cobwebAI-llmlib" }
+cobwebai-lib = { path = "./cobwebAI-llmlib" }
 aiofiles = "^24.1.0"
-openai = "^1.57.0"
+openai = "^1.57.4"
 sqlalchemy = {extras = ["asyncio"], version = "^2.0.36"}
-taskiq = "^0.11.9"
+taskiq = "^0.11.10"
 taskiq-redis = "^1.0.2"
 aiobotocore = "^2.15.2"
 types-aiobotocore = {extras = ["essential"], version = "^2.15.2.post3"}
