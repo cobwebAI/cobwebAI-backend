@@ -11,7 +11,7 @@ from fastapi_users.authentication import (
 from loguru import logger
 import uuid
 
-from cobwebai.dependecies.database import get_user_db
+from cobwebai.dependencies.database import get_user_db
 from cobwebai.models import User
 from cobwebai.settings import settings
 

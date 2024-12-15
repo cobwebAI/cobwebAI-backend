@@ -1,1 +1,0 @@
-DB_ERR_MSG = "Internal database error"

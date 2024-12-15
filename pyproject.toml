@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["SERGEYDJUM <39106181+SERGEYDJUM@users.noreply.github.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -13,10 +14,22 @@ pydantic-settings = "^2.6.1"
 yarl = "^1.18.3"
 loguru = "^0.7.3"
 asyncpg = "^0.30.0"
-cobwebai-lib = { path = "./cobwebAI-llmlib" }
+# cobwebai-lib = { path = "./cobwebAI-llmlib" }
 aiofiles = "^24.1.0"
 openai = "^1.57.0"
-python-multipart = "^0.0.19"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.36"}
+taskiq = "^0.11.9"
+taskiq-redis = "^1.0.2"
+aiobotocore = "^2.15.2"
+types-aiobotocore = {extras = ["essential"], version = "^2.15.2.post3"}
+fastapi-users = {extras = ["sqlalchemy"], version = "^14.0.0"}
+ujson = "^5.10.0"
+python-socketio = {extras = ["asyncio"], version = "^5.11.4"}
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.8.2"
+alembic = "^1.14.0"
+psycopg2-binary = "^2.9.10"
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"

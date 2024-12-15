@@ -1,5 +1,6 @@
 # Модель для хранения информации о пользователе
 from sqlalchemy import Column, DateTime
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from cobwebai.models.base import Base

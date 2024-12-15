@@ -1,86 +1,48 @@
-from typing import AsyncGenerator
-from importlib import metadata
-from contextlib import asynccontextmanager
+import socketio
+
 from fastapi import FastAPI
 from fastapi.responses import UJSONResponse
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from cobwebai.settings import settings
-from cobwebai.log import configure_logging
-from cobwebai.api.router import api_router
-
-
-def _setup_db(app: FastAPI) -> None:  # pragma: no cover
-    """
-    Creates connection to the database.
-
-    This function creates SQLAlchemy engine instance,
-    session_factory for creating sessions
-    and stores them in the application's state property.
-
-    :param app: fastAPI application.
-    """
-    engine = create_async_engine(str(settings.db_url), echo=settings.db_echo)
-    session_factory = async_sessionmaker(
-        engine,
-        expire_on_commit=False,
-    )
-    app.state.db_engine = engine
-    app.state.db_session_factory = session_factory
-
-
-async def _create_tables() -> None:  # pragma: no cover
-    """Populates tables in the database."""
-    from cobwebai.models.base import Base
-
-    engine = create_async_engine(str(settings.db_url))
-    async with engine.begin() as connection:
-        await connection.run_sync(Base.metadata.create_all)
-    await engine.dispose()
-
-
-@asynccontextmanager
-async def lifespan_setup(
-    app: FastAPI,
-) -> AsyncGenerator[None, None]:  # pragma: no cover
-    """
-    Actions to run on application startup.
-
-    This function uses fastAPI app to store data
-    in the state, such as db_engine.
-
-    :param app: the fastAPI application.
-    :return: function that actually performs actions.
-    """
-
-    app.middleware_stack = None
-    _setup_db(app)
-    await _create_tables()
-    app.middleware_stack = app.build_middleware_stack()
-
-    yield
-    await app.state.db_engine.dispose()
+from cobwebai.utils.log import configure_logging
+from cobwebai.routes import api_router
+from cobwebai.dependencies.storage import get_storage_startup, get_storage_shutdown
+from cobwebai.dependencies.database import get_db_startup, get_db_shutdown
+from cobwebai.dependencies.socket_manager import get_sio_startup
+from cobwebai.tasks import broker
+from cobwebai.routes.websockets import OperationsNamespace
 
 
 def get_app() -> FastAPI:
-    """
-    Get FastAPI application.
-
-    This is the main constructor of an application.
-
-    :return: application.
-    """
     configure_logging()
+
     app = FastAPI(
         title="cobweb_ai",
-        version=metadata.version("cobwebai"),
-        lifespan=lifespan_setup,
         docs_url="/api/v1/docs",
         redoc_url="/api/v1/redoc",
         openapi_url="/api/v1/openapi.json",
         default_response_class=UJSONResponse,
     )
 
+    redis_manager = socketio.AsyncRedisManager(settings.redis_url)
+    sio = socketio.AsyncServer(
+        async_mode="asgi", client_manager=redis_manager, cors_allowed_origins=[]
+    )
+
+    sio.register_namespace(OperationsNamespace("/operations"))
+    sio_asgi = socketio.ASGIApp(sio, app)
+
+    app.add_route("/socket.io/", route=sio_asgi, methods=["GET", "POST"])  # noqa
+    app.add_websocket_route("/socket.io/", sio_asgi)  # noqa
+
     app.include_router(api_router)
+
+    app.add_event_handler("startup", get_db_startup(app))
+    app.add_event_handler("shutdown", get_db_shutdown(app))
+    app.add_event_handler("startup", get_storage_startup(app))
+    app.add_event_handler("shutdown", get_storage_shutdown(app))
+    app.add_event_handler("startup", get_sio_startup(app, sio))
+    app.add_event_handler("startup", broker.startup)
+    app.add_event_handler("shutdown", broker.shutdown)
 
     return app

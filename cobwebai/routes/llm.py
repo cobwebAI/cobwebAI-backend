@@ -43,7 +43,6 @@ async def transcribe_file(
         raise HTTPException(413, "Input file is too large (>1GB)")
 
     async with tempfile.TemporaryDirectory() as tempdir:
-
         named_file_path = path.join(tempdir, avfile.filename)
 
         async with aio_open(named_file_path, "wb") as named_file:
