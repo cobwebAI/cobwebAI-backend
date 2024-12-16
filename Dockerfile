@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=$POETRY_HOME/pypoetry/cache \
 FROM base as production
 ENV FASTAPI_ENV=production
 COPY --from=builder $VENV_PATH $VENV_PATH
-COPY ./cobwebai /cobwebai
-WORKDIR /
+COPY . /app
+WORKDIR /app
 EXPOSE 8000
 CMD ["python", "-m", "cobwebai"]
