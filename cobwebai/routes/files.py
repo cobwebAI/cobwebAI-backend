@@ -30,7 +30,11 @@ async def get_file(
     repository: FilesRepository = Depends(),
 ):
     file = await repository.get_file(user.id, file_id)
-    print(file)
+    if file is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found",
+        )
 
     return GetFileResponse.model_validate(file, from_attributes=True)
 
@@ -50,25 +54,27 @@ async def delete_file(
         )
 
 
-@router.post("/{file_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/{file_id}", response_model=GetFileResponse)
 async def update_file(
     file_id: UUID,
     request: UpdateFileRequest,
     user: User = Depends(current_active_user),
     repository: FilesRepository = Depends(),
 ):
-    try:
-        await repository.update_file(
-            user_id=user.id,
-            file_id=file_id,
-            name=request.name,
-            content=request.content,
-        )
-    except ValueError:
+    result = await repository.update_file(
+        user_id=user.id,
+        file_id=file_id,
+        name=request.name,
+        content=request.content,
+    )
+    if result is None:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="File not found",
         )
+    
+    await repository.commit()
+    return GetFileResponse.model_validate(result, from_attributes=True)
 
 
 @router.post("/", response_model=UploadFileResponse)
@@ -116,4 +122,5 @@ async def upload_file(
         file_key=key,
     )
 
+    await operations_repository.commit()
     return UploadFileResponse(operation_id=operation.operation_id)

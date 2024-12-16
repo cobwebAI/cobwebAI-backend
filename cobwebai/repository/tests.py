@@ -45,7 +45,7 @@ class TestsRepository(BaseRepository):
         if test is None:
             return None
 
-        best_score = min(test.max_score, max(test.best_score, score))
+        best_score = min(test.max_score, max(test.best_score or 0, score))
         test.best_score = best_score
         self.session.add(test)
         await self.session.flush()

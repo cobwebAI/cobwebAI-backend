@@ -38,7 +38,7 @@ async def create_project(
     request: CreateProjectRequest,
     user: User = Depends(current_active_user),
     repository: ProjectsRepository = Depends(),
-):
+) -> ProjectShort:
     project = await repository.create_project(
         Project(user_id=user.id, name=request.name)
     )

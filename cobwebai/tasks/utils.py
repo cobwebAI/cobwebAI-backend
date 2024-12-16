@@ -25,6 +25,12 @@ class OperationMiddleware(TaskiqMiddleware):
         await repository.update_operation(operation_id, status=OperationStatus.FAILED)
         await session.commit()
 
+        operation = await repository.get_operation(operation_id)
+
+        await sio_manager.send_operation_update(
+            operation.project.user_id, operation
+        )
+
     async def post_execute(
         self, message: TaskiqMessage, result: TaskiqResult[OperationResult]
     ):
@@ -39,8 +45,12 @@ class OperationMiddleware(TaskiqMiddleware):
 
         await repository.update_operation(
             operation_id,
-            status=OperationStatus.COMPLETED,
+            status=OperationStatus.SUCCESS,
             result_id=result.return_value.result_id,
         )
-
         await session.commit()
+
+        operation = await repository.get_operation(operation_id)
+        await sio_manager.send_operation_update(
+            operation.project.user_id, operation
+        )

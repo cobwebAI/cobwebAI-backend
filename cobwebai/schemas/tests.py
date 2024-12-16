@@ -21,6 +21,7 @@ class TestQuestion(BaseModel):
 
 
 class TestFull(TestShort):
+    description: str | None
     questions: list[TestQuestion]
 
 

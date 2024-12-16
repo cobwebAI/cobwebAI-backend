@@ -3,6 +3,7 @@ import uuid
 from typing import Callable, Awaitable
 from fastapi import Request, FastAPI
 from cobwebai.models import Operation
+from loguru import logger
 
 
 def operation_to_dict(operation: Operation) -> dict:
@@ -23,25 +24,30 @@ class SocketManager:
         self.sio_server = sio_server
 
     async def send_operation_create(self, user_id: uuid.UUID, operation: Operation):
-        print(self.sio_server)
+        logger.info(f"Sending operation create to {f'operations_{user_id}'!r}")
         await self.sio_server.emit(
             event="operation_create",
-            to=f"operations_{user_id}",
+            room=f"operations_{user_id}",
             data=operation_to_dict(operation),
+            namespace="/operations",
         )
 
     async def send_operation_update(self, user_id: uuid.UUID, operation: Operation):
+        logger.info(f"Sending operation update to {f'operations_{user_id}'!r}")
         await self.sio_server.emit(
             event="operation_update",
-            to=f"operations_{user_id}",
+            room=f"operations_{user_id}",
             data=operation_to_dict(operation),
+            namespace="/operations",
         )
 
     async def send_operation_delete(self, user_id: uuid.UUID, operation_id: uuid.UUID):
+        logger.info(f"Sending operation delete to {f'operations_{user_id}'!r}")
         await self.sio_server.emit(
             event="operation_delete",
-            to=f"operations_{user_id}",
+            room=f"operations_{user_id}",
             data={"id": operation_id},
+            namespace="/operations",
         )
 
 

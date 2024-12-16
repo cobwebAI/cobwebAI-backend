@@ -80,22 +80,16 @@ class OperationsRepository(BaseRepository):
                 Operation.status == OperationStatus.PENDING,
             )
             .values(status=status, result_id=result_id)
-            .options(joinedload(Operation.project))
             .returning(Operation)
         )
 
-        if user_id:
-            query = query.join(Project).where(Project.user_id == user_id)
-
         result = await self.session.execute(query)
-        if result.rowcount == 0:
-            raise ValueError("Operation not found")
         await self.flush()
 
-        updated_operation = result.scalar_one()
-        await self.sio_manager.send_operation_update(
-            updated_operation.project.user_id, updated_operation
-        )
+        updated_operation = result.scalar_one_or_none()
+        if not updated_operation:
+            raise ValueError("Operation not found")
+
         return updated_operation
 
     async def delete_operation(

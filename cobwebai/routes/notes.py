@@ -59,19 +59,20 @@ async def update_note(
     user: User = Depends(current_active_user),
     repository: NotesRepository = Depends(),
 ) -> NoteFull:
-    try:
-        note = await repository.update_note(
-            user_id=user.id,
-            note_id=note_id,
-            name=request.name,
-            content=request.content,
-        )
-    except ValueError:
+    note = await repository.update_note(
+        user_id=user.id,
+        note_id=note_id,
+        name=request.name,
+        content=request.content,
+    )
+
+    if note is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Note not found",
         )
 
+    await repository.commit()
     return NoteFull.model_validate(note, from_attributes=True)
 
 
@@ -113,4 +114,5 @@ async def create_note(
         description=request.description,
     )
 
+    await operations_repository.commit()
     return CreateNoteResponse.model_validate(operation, from_attributes=True)

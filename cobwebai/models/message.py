@@ -1,6 +1,6 @@
 import uuid
 import enum
-from sqlalchemy import Column, Text, DateTime, ForeignKey
+from sqlalchemy import Column, Text, DateTime, ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID, ENUM
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -14,6 +14,9 @@ class MessageRole(str, enum.Enum):
 
 class Message(Base):
     __tablename__ = "messages"
+    __table_args__ = (
+        UniqueConstraint("chat_id", "order_number", name="unique_chat_order_number"),
+    )
 
     message_id = Column(
         UUID(as_uuid=True),
@@ -26,7 +29,8 @@ class Message(Base):
     content = Column(Text, nullable=False)
     role = Column(ENUM(MessageRole, name="message_role_enum"), nullable=False)
     attachments = Column(Text, nullable=True, default=None)
-
+    order_number = Column(Integer, nullable=False, default=0)
+    
     created_at = Column(DateTime(timezone=True), default=func.now())
     chat_id = Column(
         UUID(as_uuid=True),
