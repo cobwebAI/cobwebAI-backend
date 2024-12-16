@@ -26,6 +26,6 @@ FROM base as production
 ENV FASTAPI_ENV=production
 COPY --from=builder $VENV_PATH $VENV_PATH
 COPY ./cobwebai /cobwebai
-WORKDIR /cobwebai
+WORKDIR /
 EXPOSE 8000
-CMD ["python", "__main__.py"]
+CMD ["python", "-m", "cobwebai"]
