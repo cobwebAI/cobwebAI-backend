@@ -29,6 +29,5 @@ class CreateNoteResponse(BaseModel):
 
 
 class UpdateNoteRequest(BaseModel):
-    note_id: UUID = Field(validation_alias="noteId")
     name: str | None = None
     content: str | None = None

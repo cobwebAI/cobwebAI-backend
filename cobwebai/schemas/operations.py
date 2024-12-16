@@ -10,7 +10,7 @@ class OperationFull(BaseModel):
     name: str
     type: OperationType
     status: OperationStatus
-    result_id: UUID = Field(serialization_alias="resultId")
+    result_id: UUID | None = Field(serialization_alias="resultId")
     created_at: datetime = Field(serialization_alias="createdAt")
     updated_at: datetime = Field(serialization_alias="updatedAt")
 

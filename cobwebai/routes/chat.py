@@ -14,6 +14,7 @@ from cobwebai.schemas.chats import (
     ChatFull,
     AttachmentType,
     ChatMessage,
+    SendMessageResponse,
 )
 
 
@@ -32,7 +33,7 @@ async def get_chat(
     return ChatFull.model_validate(chat, from_attributes=True)
 
 
-@router.post("/{chat_id}/message", response_model=ChatMessage)
+@router.post("/{chat_id}/message", response_model=SendMessageResponse)
 async def send_message(
     chat_id: uuid.UUID | Literal["new"],
     request: SendMessageRequest,
@@ -40,7 +41,7 @@ async def send_message(
     chats_repository: ChatsRepository = Depends(),
     files_repository: FilesRepository = Depends(),
     notes_repository: NotesRepository = Depends(),
-):
+) -> SendMessageResponse:
     attached_file_ids = []
     attached_note_ids = []
 
@@ -93,7 +94,12 @@ async def send_message(
     )
 
     await chats_repository.add_message(user.id, answer_message)
-    return ChatMessage.model_validate(answer_message, from_attributes=True)
+    await chats_repository.commit()
+    return SendMessageResponse(
+        chat_id=chat.chat_id,
+        chat_name=chat.name,
+        assistant_answer=ChatMessage.model_validate(answer_message, from_attributes=True),
+    )
 
 
 @router.post("/{chat_id}/regenerate", response_model=ChatMessage)
@@ -120,4 +126,5 @@ async def regenerate_message(
     )
 
     await chats_repository.add_message(user.id, answer_message)
+    await chats_repository.commit()
     return ChatMessage.model_validate(answer_message, from_attributes=True)

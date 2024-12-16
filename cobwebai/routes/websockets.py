@@ -12,7 +12,12 @@ class UserSession(TypedDict):
 
 def validate_access_token(access_token: str) -> str | None:
     try:
-        payload = jwt.decode(access_token, settings.users_secret, algorithms=["HS256"])
+        payload = jwt.decode(
+            access_token,
+            settings.users_secret,
+            audience=["fastapi-users:auth"],
+            algorithms=["HS256"],
+        )
         return payload.get("sub")
     except jwt.InvalidTokenError:
         return None
@@ -31,6 +36,7 @@ class OperationsNamespace(socketio.AsyncNamespace):
 
         user_id = validate_access_token(access_token)
         if user_id is None:
+            logger.error(f"Invalid access token for sid {sid}")
             await self.disconnect(sid)
             return
 

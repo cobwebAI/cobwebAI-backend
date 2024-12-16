@@ -51,7 +51,7 @@ class ChatsRepository(BaseRepository):
             .join(Chat)
             .join(Project)
             .where(Message.chat_id == chat_id, Project.user_id == user_id)
-            .order_by(Message.created_at.desc())
+            .order_by(Message.order_number.desc())
             .limit(1)
         )
         result = await self.session.execute(query)
@@ -82,6 +82,7 @@ class ChatsRepository(BaseRepository):
                 status_code=400, detail="Cannot add two messages with the same role"
             )
 
+        message.order_number = last_message.order_number + 1 if last_message else 0
         self.session.add(message)
         await self.flush()
         return message

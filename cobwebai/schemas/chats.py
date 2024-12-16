@@ -12,8 +12,7 @@ class ChatShort(BaseModel):
 
 
 class ChatMessage(BaseModel):
-    id: UUID = Field(validation_alias="message_id")
-    chat_id: UUID = Field(serialization_alias="chatId")
+    id: int = Field(validation_alias="order_number")
     role: str
     content: str
     attachments: str | None = None
@@ -36,4 +35,10 @@ class MessageAttachment(BaseModel):
 class SendMessageRequest(BaseModel):
     content: str
     attachments: list[MessageAttachment]
-    project_id: UUID
+    project_id: UUID = Field(validation_alias="projectId")
+
+
+class SendMessageResponse(BaseModel):
+    chat_id: UUID = Field(serialization_alias="chatId")
+    chat_name: str = Field(serialization_alias="chatName")
+    assistant_answer: ChatMessage = Field(serialization_alias="assistantAnswer")

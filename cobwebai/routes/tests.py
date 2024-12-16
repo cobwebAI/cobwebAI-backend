@@ -73,6 +73,7 @@ async def update_score(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Test not found",
         )
+    
     return TestScoreUpdate(best_score=best_score)
 
 
@@ -117,4 +118,5 @@ async def create_test(
         description=request.description,
     )
 
+    await operations_repository.commit()
     return CreateTestResponse.model_validate(operation, from_attributes=True)

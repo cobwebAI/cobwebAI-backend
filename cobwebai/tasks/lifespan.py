@@ -31,7 +31,7 @@ async def startup(state: TaskiqState):
         expire_on_commit=False,
     )
 
-    redis_manager = socketio.RedisManager(settings.redis_url)
+    redis_manager = socketio.AsyncRedisManager(settings.redis_url)
     sio_server = socketio.AsyncServer(client_manager=redis_manager)
 
     state.sio_server = sio_server

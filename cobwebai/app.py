@@ -2,6 +2,7 @@ import socketio
 
 from fastapi import FastAPI
 from fastapi.responses import UJSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from cobwebai.settings import settings
 from cobwebai.utils.log import configure_logging
@@ -24,9 +25,19 @@ def get_app() -> FastAPI:
         default_response_class=UJSONResponse,
     )
 
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
     redis_manager = socketio.AsyncRedisManager(settings.redis_url)
     sio = socketio.AsyncServer(
-        async_mode="asgi", client_manager=redis_manager, cors_allowed_origins=[]
+        async_mode="asgi",
+        client_manager=redis_manager,
+        cors_allowed_origins=[],
     )
 
     sio.register_namespace(OperationsNamespace("/operations"))

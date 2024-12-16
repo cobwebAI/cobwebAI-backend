@@ -30,7 +30,7 @@ class FilesRepository(BaseRepository):
         result = await self.session.execute(query)
         return result.scalars().all()
 
-    async def get_file(self, user_id: uuid.UUID, file_id: uuid.UUID) -> File:
+    async def get_file(self, user_id: uuid.UUID, file_id: uuid.UUID) -> File | None:
         query = (
             select(File)
             .join(Project)
@@ -51,13 +51,13 @@ class FilesRepository(BaseRepository):
         file_id: uuid.UUID,
         name: str | None = None,
         content: str | None = None,
-    ) -> None:
+    ) -> File | None:
         query = update(File).where(
             File.file_id == file_id,
             File.project_id.in_(
                 select(Project.project_id).where(Project.user_id == user_id)
             ),
-        )
+        ).returning(File)
 
         if not name and not content:
             raise ValueError("At least one of the fields must be provided")
@@ -68,10 +68,9 @@ class FilesRepository(BaseRepository):
             query = query.values(content=content)
 
         result = await self.session.execute(query)
-        if result.rowcount == 0:
-            raise ValueError("File not found")
         await self.flush()
-
+        return result.scalar_one_or_none()
+    
     async def delete_file(self, user_id: uuid.UUID, file_id: uuid.UUID) -> None:
         query = delete(File).where(
             File.file_id == file_id,

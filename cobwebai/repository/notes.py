@@ -48,9 +48,22 @@ class NotesRepository(BaseRepository):
         return note
 
     async def update_note(
-        self, note_id: uuid.UUID, name: str | None = None, content: str | None = None
+        self,
+        user_id: uuid.UUID,
+        note_id: uuid.UUID,
+        name: str | None = None,
+        content: str | None = None,
     ) -> Note:
-        query = update(Note).where(Note.note_id == note_id).returning(Note)
+        query = (
+            update(Note)
+            .where(
+                Note.note_id == note_id,
+                Note.project_id.in_(
+                    select(Project.project_id).where(Project.user_id == user_id)
+                ),
+            )
+            .returning(Note)
+        )
 
         if not name and not content:
             raise ValueError("At least one of the fields must be provided")
@@ -61,10 +74,8 @@ class NotesRepository(BaseRepository):
             query = query.values(content=content)
 
         result = await self.session.execute(query)
-        if result.rowcount == 0:
-            raise ValueError("Note not found")
         await self.flush()
-        return result.scalar_one()
+        return result.scalar_one_or_none()
 
     async def delete_note(self, user_id: uuid.UUID, note_id: uuid.UUID) -> None:
         query = delete(Note).where(
