@@ -17,7 +17,7 @@ FROM base as builder
 RUN --mount=type=cache,target=/root/.cache \
   pip install "poetry==$POETRY_VERSION"
 WORKDIR $PYSETUP_PATH
-COPY ./poetry.lock ./pyproject.toml ./
+COPY ./poetry.lock ./pyproject.toml ./cobwebAI-llmlib ./
 RUN --mount=type=cache,target=$POETRY_HOME/pypoetry/cache \
   poetry install --no-dev
  
