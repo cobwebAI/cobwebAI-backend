@@ -17,6 +17,14 @@ services:
     volumes:
       - redis_data:/data
 
+  chroma:
+    image: chromadb/chroma
+    ports:
+      - 127.0.0.1:35432:8000
+    volumes:
+      - chroma_data:/chroma/chroma
+
 volumes:
   postgres_data:
   redis_data:
+  chroma_data:
