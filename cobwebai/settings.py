@@ -40,6 +40,8 @@ class Settings(BaseSettings):
     log_level: LogLevel = LogLevel.INFO
     users_secret: str = os.getenv("USERS_SECRET", "")
     openapi_key: str = os.getenv("OPENAI_API_KEY", "")
+    ssl_certfile: str | None = None
+    ssl_keyfile: str | None = None
 
     # Variables for the database
     db_host: str = "localhost"
@@ -48,11 +50,13 @@ class Settings(BaseSettings):
     db_pass: str = "postgres"
     db_base: str = "cobwebai"
     db_echo: bool = False
+    
+    chroma_port: int = 35432
 
     redis_url: str = "redis://localhost:6379/0"
 
-    s3_key_id: str
-    s3_secret_key: str
+    s3_key_id: str | None = None
+    s3_secret_key: str | None = None
     s3_region: str = "ru-central1"
     s3_endpoint_url: str = "https://storage.yandexcloud.net"
 

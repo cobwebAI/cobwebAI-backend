@@ -13,6 +13,8 @@ def main() -> None:
         reload=settings.reload,
         log_level=settings.log_level.value.lower(),
         factory=True,
+        ssl_keyfile=settings.ssl_keyfile,
+        ssl_certfile=settings.ssl_certfile,
     )
 
 
