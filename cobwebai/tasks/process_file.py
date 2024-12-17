@@ -1,15 +1,21 @@
 from .lifespan import get_s3_client, get_session
-from .utils import OperationResult
+from .utils import OperationResult, llmtools
 from cobwebai.settings import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from cobwebai.repository.files import FilesRepository
 from cobwebai.models.file import File
+from aiofiles import tempfile
+from aiofiles import open as aio_open
+from os import path
 import uuid
 
 from loguru import logger
 from types_aiobotocore_s3 import S3Client
 from typing import Annotated
 from taskiq import TaskiqDepends
+
+
+FILE_CHUNK_SIZE = 1024 * 1024 * 100  # 100MB
 
 
 async def process_file(
@@ -22,12 +28,22 @@ async def process_file(
 ):
     logger.info(f"Processing file {file_key}")
     resource = await s3_client.get_object(Bucket=settings.s3_bucket_name, Key=file_key)
-    async with resource["Body"] as body:
-        # chunk = await body.read(...)
-        ...
+    file_name = path.basename(file_key)
+    content: str = None
 
-    content = "..."
-    file_name = file_key.rsplit("/", 1)[-1]
+    async with tempfile.TemporaryDirectory() as tempdir:
+        # We need file with extension for ffmpeg
+        named_file_path = path.join(tempdir, f"{operation_id}_{file_name}")
+
+        async with aio_open(named_file_path, "wb") as named_file:
+            async with resource["Body"] as body:
+                while buf := await body.read(FILE_CHUNK_SIZE):
+                    await named_file.write(buf)
+
+        content = await llmtools.s2t.transcribe_file(named_file_path)
+
+    if content is None:
+        raise RuntimeError("failed to transcribe file")
 
     repository = FilesRepository(session)
     file = await repository.create_file(
