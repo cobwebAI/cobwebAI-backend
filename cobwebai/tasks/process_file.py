@@ -37,7 +37,7 @@ async def process_file(
 
         async with aio_open(named_file_path, "wb") as named_file:
             async with resource["Body"] as body:
-                while buf := await body.read(FILE_CHUNK_SIZE):
+                async for buf in body.iter_chunks(FILE_CHUNK_SIZE):
                     await named_file.write(buf)
 
         content = await llmtools.s2t.transcribe_file(named_file_path)
