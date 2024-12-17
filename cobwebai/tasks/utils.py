@@ -1,10 +1,14 @@
 from taskiq import TaskiqMiddleware, TaskiqMessage, TaskiqResult
 from cobwebai.models.operations import OperationStatus
 from cobwebai.repository.operations import OperationsRepository
+from cobwebai.settings import settings
+from cobwebai_lib import LLMTools
 from pydantic import BaseModel
 from loguru import logger
 import uuid
 
+
+llmtools = LLMTools(settings.openapi_key, settings.chroma_port)
 
 class OperationResult(BaseModel):
     result_id: uuid.UUID
@@ -34,6 +38,10 @@ class OperationMiddleware(TaskiqMiddleware):
     async def post_execute(
         self, message: TaskiqMessage, result: TaskiqResult[OperationResult]
     ):
+        if result.is_err:
+            logger.info(f"Operation errored: {result.error}")
+            return
+        
         operation_id = message.kwargs.get("operation_id")
         if not operation_id:
             logger.info("No operation ID provided")
