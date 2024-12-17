@@ -6,6 +6,8 @@ COPY pyproject.toml poetry.lock ./
 
 RUN pip install poetry
 
+ADD cobwebAI-llmlib ./cobwebAI-llmlib
+
 RUN poetry config virtualenvs.create false \
     && poetry install --no-dev --no-interaction --no-ansi
 
