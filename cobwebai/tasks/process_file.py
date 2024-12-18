@@ -28,6 +28,7 @@ async def process_file(
 ):
     logger.info(f"Processing file {file_key}")
     resource = await s3_client.get_object(Bucket=settings.s3_bucket_name, Key=file_key)
+    stream = resource["Body"]
     file_name = path.basename(file_key)
     content: str = None
 
@@ -35,10 +36,9 @@ async def process_file(
         # We need file with extension for ffmpeg
         named_file_path = path.join(tempdir, f"{operation_id}_{file_name}")
 
-        async with resource["Body"] as body:
-            async with aio_open(named_file_path, "wb") as named_file:
-                async for chunk in body.content.iter_chunks(FILE_CHUNK_SIZE):
-                    await named_file.write(chunk)
+        async with aio_open(named_file_path, "wb") as named_file:
+            for chunk in stream.iter_chunks(FILE_CHUNK_SIZE):
+                await named_file.write(chunk)
 
         content = await llmtools.s2t.transcribe_file(named_file_path)
 
