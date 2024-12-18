@@ -1,9 +1,10 @@
-FROM python:3.12-slim
+FROM python:3.12
 
 WORKDIR /app
 
 COPY pyproject.toml poetry.lock ./
 
+RUN apt-get update -qq && apt-get install ffmpeg -y
 RUN pip install poetry
 
 ADD cobwebAI-llmlib ./cobwebAI-llmlib
