@@ -40,7 +40,7 @@ async def process_file(
             async for chunk in stream.iter_chunks(FILE_CHUNK_SIZE):
                 await named_file.write(chunk)
 
-        content = await llmtools.s2t.transcribe_file(named_file_path)
+        content = await llmtools.transcribe_avfile(named_file_path)
 
     repository = FilesRepository(session)
     file = await repository.create_file(

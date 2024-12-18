@@ -27,7 +27,7 @@ async def generate_note(
         raise ValueError("no files provided")
 
     input_texts = list(map(lambda f: f.content, files))
-    title, content = llmtools.generate_note(input_texts, custom_description=description)
+    title, content = await llmtools.generate_note(input_texts, custom_description=description)
 
     repository = NotesRepository(session)
     note = await repository.create_note(
