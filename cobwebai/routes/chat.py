@@ -70,19 +70,20 @@ async def send_message(
 
     history_converted = []
 
-    if chat := await chats_repository.get_chat(user.id, chat_id):
-        for msg in chat.messages:
-            history_converted.append(
-                LibMessage(
-                    role=(
-                        ChatRole.BOT
-                        if msg.role == MessageRole.ASSISTANT
-                        else ChatRole.USER
-                    ),
-                    raw_text=msg.content,
-                    attachment=msg.attachments,
+    if chat_id != "new":
+        if chat := await chats_repository.get_chat(user.id, chat_id):
+            for msg in chat.messages:
+                history_converted.append(
+                    LibMessage(
+                        role=(
+                            ChatRole.BOT
+                            if msg.role == MessageRole.ASSISTANT
+                            else ChatRole.USER
+                        ),
+                        raw_text=msg.content,
+                        attachment=msg.attachments,
+                    )
                 )
-            )
 
     user_msg, bot_msg = await llmtools.chat_with_rag(
         user_id=user.id,
