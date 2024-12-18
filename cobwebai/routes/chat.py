@@ -87,7 +87,7 @@ async def send_message(
 
     user_msg, bot_msg = await llmtools.chat_with_rag(
         user_id=user.id,
-        project_id=chat.project_id,
+        project_id=request.project_id,
         user_prompt=request.content,
         attachments=attached,
         history=history_converted,
