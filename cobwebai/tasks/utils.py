@@ -15,33 +15,9 @@ class OperationResult(BaseModel):
 
 
 class OperationMiddleware(TaskiqMiddleware):
-    async def on_error(self, message: TaskiqMessage, error: Exception):
-        operation_id = message.kwargs.get("operation_id")
-
-        logger.error(f"Operation {operation_id} failed with error: {error}")
-        if not operation_id:
-            logger.info("No operation ID provided")
-            return
-
-        session = self.broker.state.session_factory()
-        sio_manager = self.broker.state.sio_manager
-        repository = OperationsRepository(session, sio_manager)
-        await repository.update_operation(operation_id, status=OperationStatus.FAILED)
-        await session.commit()
-
-        operation = await repository.get_operation(operation_id)
-
-        await sio_manager.send_operation_update(
-            operation.project.user_id, operation
-        )
-
     async def post_execute(
         self, message: TaskiqMessage, result: TaskiqResult[OperationResult]
     ):
-        if result.is_err:
-            logger.info(f"Operation errored: {result.error}")
-            return
-        
         operation_id = message.kwargs.get("operation_id")
         if not operation_id:
             logger.info("No operation ID provided")
@@ -51,14 +27,23 @@ class OperationMiddleware(TaskiqMiddleware):
         sio_manager = self.broker.state.sio_manager
         repository = OperationsRepository(session, sio_manager)
 
+        if result.is_err:
+            logger.error(f"Operation {operation_id} failed with error: {result.error}")
+            status = OperationStatus.FAILED
+            result_id = None
+        else:
+            status = OperationStatus.SUCCESS
+            result_id = result.return_value.result_id
+
         await repository.update_operation(
             operation_id,
-            status=OperationStatus.SUCCESS,
-            result_id=result.return_value.result_id,
+            status=status,
+            result_id=result_id,
         )
-        await session.commit()
 
+        await session.commit()
         operation = await repository.get_operation(operation_id)
         await sio_manager.send_operation_update(
             operation.project.user_id, operation
         )
+
