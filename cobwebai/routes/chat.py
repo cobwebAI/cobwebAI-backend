@@ -1,3 +1,4 @@
+from itertools import chain
 import uuid
 import asyncio
 from typing import Literal
@@ -9,6 +10,8 @@ from cobwebai.repository.notes import NotesRepository
 from cobwebai.utils.auth import current_active_user
 from cobwebai.models import User, Chat, Message
 from cobwebai.models.message import MessageRole
+from cobwebai.tasks.utils import llmtools
+from cobwebai_lib.chat import ChatAttachment, Message as LibMessage, ChatRole
 from cobwebai.schemas.chats import (
     SendMessageRequest,
     ChatFull,
@@ -60,13 +63,39 @@ async def send_message(
     if len(attached_notes) != len(attached_note_ids):
         raise HTTPException(status_code=400, detail="Some notes not found")
 
-    # TODO: await convert_attachments(attached_files, attached_notes)
-    converted_attachments = "..."
+    attached = chain(
+        map(lambda n: ChatAttachment(n.note_id, n.content), attached_notes),
+        map(lambda n: ChatAttachment(n.file_id, n.content), attached_files),
+    )
+
+    history_converted = []
+
+    if chat := await chats_repository.get_chat(user.id, chat_id):
+        for msg in chat.messages:
+            history_converted.append(
+                LibMessage(
+                    role=(
+                        ChatRole.BOT
+                        if msg.role == MessageRole.ASSISTANT
+                        else ChatRole.USER
+                    ),
+                    raw_text=msg.content,
+                    attachment=msg.attachments,
+                )
+            )
+
+    user_msg, bot_msg = await llmtools.chat_with_rag(
+        user_id=user.id,
+        project_id=chat.project_id,
+        user_prompt=request.content,
+        attachments=attached,
+        history=history_converted,
+    )
 
     user_message = Message(
         role=MessageRole.USER,
-        content=request.content,
-        attachments=converted_attachments,
+        content=user_msg.raw_text,
+        attachments=user_msg.attachment,
     )
 
     if chat_id == "new":
@@ -85,12 +114,10 @@ async def send_message(
         await chats_repository.add_message(user.id, user_message)
         chat = await chats_repository.get_chat(user.id, chat_id)
 
-    await asyncio.sleep(1)
-
     answer_message = Message(
         chat_id=chat.chat_id,
         role=MessageRole.ASSISTANT,
-        content=f"Echo: {request.content}",
+        content=bot_msg.raw_text,
     )
 
     await chats_repository.add_message(user.id, answer_message)
@@ -98,7 +125,9 @@ async def send_message(
     return SendMessageResponse(
         chat_id=chat.chat_id,
         chat_name=chat.name,
-        assistant_answer=ChatMessage.model_validate(answer_message, from_attributes=True),
+        assistant_answer=ChatMessage.model_validate(
+            answer_message, from_attributes=True
+        ),
     )
 
 
