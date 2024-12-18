@@ -35,10 +35,10 @@ async def process_file(
         # We need file with extension for ffmpeg
         named_file_path = path.join(tempdir, f"{operation_id}_{file_name}")
 
-        async with aio_open(named_file_path, "wb") as named_file:
-            async with resource["Body"] as body:
-                async for buf in body.iter_chunks(FILE_CHUNK_SIZE):
-                    await named_file.write(buf)
+        async with resource["Body"] as body:
+            async with aio_open(named_file_path, "wb") as named_file:
+                async for chunk in body.content.iter_chunks(FILE_CHUNK_SIZE):
+                    await named_file.write(chunk)
 
         content = await llmtools.s2t.transcribe_file(named_file_path)
 
