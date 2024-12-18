@@ -42,9 +42,6 @@ async def process_file(
 
         content = await llmtools.s2t.transcribe_file(named_file_path)
 
-    if content is None:
-        raise RuntimeError("failed to transcribe file")
-
     repository = FilesRepository(session)
     file = await repository.create_file(
         file=File(name=file_name, content=content, project_id=project_id)

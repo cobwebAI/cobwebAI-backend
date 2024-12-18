@@ -26,17 +26,13 @@ async def generate_note(
     if not files:
         raise ValueError("no files provided")
 
-    name = f"Конспект | {description}"
-    input_text = "\n\n".join(map(lambda f: f.content, files))
-    content = await llmtools.s2t_pp.create_conspect(input_text, theme=description)
-
-    if not content.strip():
-        raise RuntimeError("failed to generate note")
+    input_texts = list(map(lambda f: f.content, files))
+    title, content = llmtools.generate_note(input_texts, custom_description=description)
 
     repository = NotesRepository(session)
     note = await repository.create_note(
         note=Note(
-            name=name,
+            name=title,
             content=content,
             project_id=project_id,
         )
