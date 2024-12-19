@@ -4,9 +4,11 @@ from cobwebai.settings import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from cobwebai.repository.files import FilesRepository
 from cobwebai.models.file import File
+from markitdown import MarkItDown
 from aiofiles import tempfile
 from aiofiles import open as aio_open
 from os import path
+from io import BytesIO
 import uuid
 
 from loguru import logger
@@ -17,7 +19,10 @@ from taskiq import TaskiqDepends
 
 FILE_CHUNK_SIZE = 1024 * 1024 * 100  # 100MB
 TEXT_FILE_EXTENSIONS = set(["txt", "md"])
-AV_FILE_EXTENSIONS = set(["mp4", "m4a", "mp3", "mkv", "ogg", "wav", "avi", "mov", "webm"])
+AV_FILE_EXTENSIONS = set(
+    ["mp4", "m4a", "mp3", "mkv", "ogg", "wav", "avi", "mov", "webm"]
+)
+CONVERTABLE_FILE_EXTENSIONS = set(["docx", "doc"])
 
 
 async def process_file(
@@ -50,6 +55,12 @@ async def process_file(
         content = await llmtools.s2t_pp.fix_transcribed_text(
             (await stream.read()).decode()
         )
+    elif file_extension in CONVERTABLE_FILE_EXTENSIONS:
+        md = MarkItDown()
+        md_res = md.convert_stream(
+            BytesIO(await stream.read()), file_extension=file_extension
+        )
+        content = md_res.text_content
     else:
         raise ValueError("cannot process a file with unknown file type")
 

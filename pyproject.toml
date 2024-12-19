@@ -25,6 +25,7 @@ types-aiobotocore = {extras = ["essential"], version = "^2.15.2.post3"}
 fastapi-users = {extras = ["sqlalchemy"], version = "^14.0.0"}
 ujson = "^5.10.0"
 python-socketio = {extras = ["asyncio"], version = "^5.11.4"}
+markitdown = "^0.0.1a3"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.8.2"
