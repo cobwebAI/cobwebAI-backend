@@ -50,7 +50,8 @@ class Settings(BaseSettings):
     db_pass: str = "postgres"
     db_base: str = "cobwebai"
     db_echo: bool = False
-    
+
+    chroma_host: str = "localhost"
     chroma_port: int = 35432
 
     redis_url: str = "redis://localhost:6379/0"

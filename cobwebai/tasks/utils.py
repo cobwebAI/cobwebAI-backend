@@ -8,7 +8,7 @@ from loguru import logger
 import uuid
 
 
-llmtools = LLMTools(settings.openapi_key, settings.chroma_port)
+llmtools = LLMTools(settings.openapi_key, settings.chroma_port, settings.chroma_host)
 
 class OperationResult(BaseModel):
     result_id: uuid.UUID
