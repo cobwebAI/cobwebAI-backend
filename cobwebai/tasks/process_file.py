@@ -47,7 +47,9 @@ async def process_file(
 
             content = await llmtools.transcribe_avfile(named_file_path)
     elif file_extension in TEXT_FILE_EXTENSIONS:
-        content = await llmtools.s2t_pp.fix_transcribed_text(await stream.read())
+        content = await llmtools.s2t_pp.fix_transcribed_text(
+            (await stream.read()).decode()
+        )
     else:
         raise ValueError("cannot process a file with unknown file type")
 
