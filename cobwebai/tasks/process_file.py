@@ -22,7 +22,7 @@ TEXT_FILE_EXTENSIONS = set(["txt", "md"])
 AV_FILE_EXTENSIONS = set(
     ["mp4", "m4a", "mp3", "mkv", "ogg", "wav", "avi", "mov", "webm"]
 )
-CONVERTABLE_FILE_EXTENSIONS = set(["docx", "doc"])
+CONVERTABLE_FILE_EXTENSIONS = set(["docx", "doc", "pdf"])
 
 
 async def process_file(
