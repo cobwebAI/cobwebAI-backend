@@ -16,6 +16,8 @@ from taskiq import TaskiqDepends
 
 
 FILE_CHUNK_SIZE = 1024 * 1024 * 100  # 100MB
+TEXT_FILE_EXTENSIONS = set(["txt", "md"])
+AV_FILE_EXTENSIONS = set(["mp4", "m4a", "mp3", "mkv", "ogg", "wav", "avi", "mov"])
 
 
 async def process_file(
@@ -30,17 +32,24 @@ async def process_file(
     resource = await s3_client.get_object(Bucket=settings.s3_bucket_name, Key=file_key)
     stream = resource["Body"]
     file_name = path.basename(file_key)
+    file_extension = path.splitext(file_key)[1].lstrip(".")
+
     content: str = None
 
-    async with tempfile.TemporaryDirectory() as tempdir:
-        # We need file with extension for ffmpeg
-        named_file_path = path.join(tempdir, f"{operation_id}_{file_name}")
+    if file_extension in AV_FILE_EXTENSIONS:
+        async with tempfile.TemporaryDirectory() as tempdir:
+            # We need file with extension for ffmpeg
+            named_file_path = path.join(tempdir, f"{operation_id}_{file_name}")
 
-        async with aio_open(named_file_path, "wb") as named_file:
-            async for chunk in stream.iter_chunks(FILE_CHUNK_SIZE):
-                await named_file.write(chunk)
+            async with aio_open(named_file_path, "wb") as named_file:
+                async for chunk in stream.iter_chunks(FILE_CHUNK_SIZE):
+                    await named_file.write(chunk)
 
-        content = await llmtools.transcribe_avfile(named_file_path)
+            content = await llmtools.transcribe_avfile(named_file_path)
+    elif file_extension in TEXT_FILE_EXTENSIONS:
+        content = await llmtools.s2t_pp.fix_transcribed_text(await stream.read())
+    else:
+        raise ValueError("cannot process a file with unknown file type")
 
     repository = FilesRepository(session)
     file = await repository.create_file(

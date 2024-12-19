@@ -54,19 +54,25 @@ async def send_message(
         elif attachment.type == AttachmentType.NOTE:
             attached_note_ids.append(attachment.id)
 
-    attached_files = await files_repository.get_files_by_ids(user.id, attached_file_ids)
-    attached_notes = await notes_repository.get_notes_by_ids(user.id, attached_note_ids)
+    attached_files = list(
+        map(
+            lambda n: ChatAttachment(n.file_id, n.content),
+            await files_repository.get_files_by_ids(user.id, attached_file_ids),
+        )
+    )
+
+    attached_notes = list(
+        map(
+            lambda n: ChatAttachment(n.note_id, n.content),
+            await notes_repository.get_notes_by_ids(user.id, attached_note_ids),
+        )
+    )
 
     if len(attached_files) != len(attached_file_ids):
         raise HTTPException(status_code=400, detail="Some files not found")
 
     if len(attached_notes) != len(attached_note_ids):
         raise HTTPException(status_code=400, detail="Some notes not found")
-
-    attached = chain(
-        map(lambda n: ChatAttachment(n.note_id, n.content), attached_notes),
-        map(lambda n: ChatAttachment(n.file_id, n.content), attached_files),
-    )
 
     history_converted = []
 
@@ -89,7 +95,8 @@ async def send_message(
         user_id=user.id,
         project_id=request.project_id,
         user_prompt=request.content,
-        attachments=attached,
+        attachments=attached_notes,
+        rag_attachments=attached_files,
         history=history_converted,
     )
 
