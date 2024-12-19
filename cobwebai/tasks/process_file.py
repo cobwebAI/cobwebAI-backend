@@ -17,7 +17,7 @@ from taskiq import TaskiqDepends
 
 FILE_CHUNK_SIZE = 1024 * 1024 * 100  # 100MB
 TEXT_FILE_EXTENSIONS = set(["txt", "md"])
-AV_FILE_EXTENSIONS = set(["mp4", "m4a", "mp3", "mkv", "ogg", "wav", "avi", "mov"])
+AV_FILE_EXTENSIONS = set(["mp4", "m4a", "mp3", "mkv", "ogg", "wav", "avi", "mov", "webm"])
 
 
 async def process_file(
