@@ -60,7 +60,9 @@ async def process_file(
         md_res = md.convert_stream(
             BytesIO(await stream.read()), file_extension=file_extension
         )
-        content = md_res.text_content
+        content = await llmtools.s2t_pp.fix_transcribed_text(
+            md_res.text_content, from_text=True
+        )
     else:
         raise ValueError("cannot process a file with unknown file type")
 
