@@ -52,9 +52,7 @@ async def process_file(
 
             content = await llmtools.transcribe_avfile(named_file_path)
     elif file_extension in TEXT_FILE_EXTENSIONS:
-        content = await llmtools.s2t_pp.fix_transcribed_text(
-            (await stream.read()).decode()
-        )
+        content = (await stream.read()).decode().strip()
     elif file_extension in CONVERTABLE_FILE_EXTENSIONS:
         md = MarkItDown()
         md_res = md.convert_stream(
