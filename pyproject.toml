@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cobwebai"
-version = "0.1.0"
+version = "0.1.1a"
 description = ""
 authors = ["SERGEYDJUM <39106181+SERGEYDJUM@users.noreply.github.com>"]
 readme = "README.md"
@@ -8,28 +8,28 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
-fastapi = "^0.115.6"
+fastapi = "^0.115.11"
 uvicorn = "^0.34.0"
-pydantic-settings = "^2.7.0"
+pydantic-settings = "^2.8.1"
 yarl = "^1.18.3"
 loguru = "^0.7.3"
 asyncpg = "^0.30.0"
 cobwebai-lib = { path = "./cobwebAI-llmlib" }
 aiofiles = "^24.1.0"
-openai = "^1.58.1"
-sqlalchemy = {extras = ["asyncio"], version = "^2.0.36"}
-taskiq = "^0.11.10"
+openai = "^1.65.3"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.38"}
+taskiq = "^0.11.13"
 taskiq-redis = "^1.0.2"
-aiobotocore = "^2.16.0"
-types-aiobotocore = {extras = ["essential"], version = "2.16.0"}
-fastapi-users = {extras = ["sqlalchemy"], version = "^14.0.0"}
+aiobotocore = "^2.21.1"
+types-aiobotocore = {extras = ["essential"], version = "^2.21.1"}
+fastapi-users = {extras = ["sqlalchemy"], version = "^14.0.1"}
 ujson = "^5.10.0"
-python-socketio = {extras = ["asyncio"], version = "5.12.0"}
-markitdown = "^0.0.1a3"
+python-socketio = {extras = ["asyncio"], version = "^5.12.1"}
+markitdown = "^0.0.1a5"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.8.4"
-alembic = "^1.14.0"
+ruff = "^0.9.9"
+alembic = "^1.15.1"
 psycopg2-binary = "^2.9.10"
 
 [tool.pytest.ini_options]
