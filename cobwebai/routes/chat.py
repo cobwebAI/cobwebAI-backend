@@ -10,7 +10,7 @@ from cobwebai.utils.auth import current_active_user
 from cobwebai.models import User, Chat, Message
 from cobwebai.models.message import MessageRole
 from cobwebai.tasks.utils import llmtools
-from cobwebai_lib.chat import ChatAttachment, Message as LibMessage, ChatRole
+from cobwebai_lib.chat import ChatAttachment, Message as LibMessage, Role as ChatRole
 from cobwebai.schemas.chats import (
     SendMessageRequest,
     ChatFull,
@@ -81,7 +81,7 @@ async def send_message(
                             if msg.role == MessageRole.ASSISTANT
                             else ChatRole.USER
                         ),
-                        raw_text=msg.content,
+                        content=msg.content,
                         attachment=msg.attachments,
                     )
                 )
@@ -97,7 +97,7 @@ async def send_message(
 
     user_message = Message(
         role=MessageRole.USER,
-        content=user_msg.raw_text,
+        content=user_msg.content,
         attachments=user_msg.attachment,
     )
 
@@ -120,7 +120,7 @@ async def send_message(
     answer_message = Message(
         chat_id=chat.chat_id,
         role=MessageRole.ASSISTANT,
-        content=bot_msg.raw_text,
+        content=bot_msg.content,
     )
 
     await chats_repository.add_message(user.id, answer_message)
