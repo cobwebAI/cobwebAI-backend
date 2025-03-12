@@ -2,8 +2,7 @@ from fastapi import HTTPException
 from .lifespan import get_session
 from .utils import OperationResult, llmtools
 from itertools import chain
-from cobwebai_lib.chat import ChatAttachment
-from cobwebai_lib.text import Question as LibQuestion
+from cobwebai_lib import ChatAttachment, Question as LibQuestion
 from sqlalchemy.ext.asyncio import AsyncSession
 from cobwebai.repository.notes import NotesRepository
 from cobwebai.repository.files import FilesRepository

@@ -10,8 +10,7 @@ from cobwebai.utils.auth import current_active_user
 from cobwebai.models import User, Chat, Message
 from cobwebai.models.message import MessageRole
 from cobwebai.tasks.utils import llmtools
-from cobwebai_lib.models import Message as LibMessage, Role as ChatRole
-from cobwebai_lib.chat import ChatAttachment
+from cobwebai_lib import ChatAttachment, Message as LibMessage, Role as ChatRole
 from cobwebai.schemas.chats import (
     SendMessageRequest,
     ChatFull,

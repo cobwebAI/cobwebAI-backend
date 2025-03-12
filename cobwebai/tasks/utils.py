@@ -10,6 +10,7 @@ import uuid
 
 llmtools = LLMTools(settings.openapi_key, settings.chroma_port, settings.chroma_host)
 
+
 class OperationResult(BaseModel):
     result_id: uuid.UUID
 
@@ -43,7 +44,4 @@ class OperationMiddleware(TaskiqMiddleware):
 
         await session.commit()
         operation = await repository.get_operation(operation_id)
-        await sio_manager.send_operation_update(
-            operation.project.user_id, operation
-        )
-
+        await sio_manager.send_operation_update(operation.project.user_id, operation)
